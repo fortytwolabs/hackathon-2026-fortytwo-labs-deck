@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alex's Prover - Personal Proof Device</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap');
+        *{margin:0;padding:0;box-sizing:border-box}
+        :root{--bg:#0B0F1A;--card:#111827;--card2:#1A2235;--border:#1E293B;--blue:#3B82F6;--blue-l:#60A5FA;--cyan:#06B6D4;--mint:#5EEAD4;--white:#F8FAFC;--gray:#94A3B8;--dim:#475569;--green:#10B981;--red:#EF4444;--gold:#F59E0B;--purple:#8B5CF6}
+        body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--white);min-height:100vh}
+        body::before{content:'';position:fixed;top:0;left:0;width:100%;height:100%;background:radial-gradient(circle at 50% 20%,rgba(59,130,246,.06)0%,transparent 50%),radial-gradient(circle at 80% 80%,rgba(139,92,246,.04)0%,transparent 50%);pointer-events:none}
+        .topbar{height:4px;background:linear-gradient(90deg,var(--blue),var(--purple),var(--cyan));position:fixed;top:0;left:0;right:0;z-index:100}
+        .container{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:0 1.5rem}
+        nav{display:flex;align-items:center;justify-content:space-between;padding:1.5rem 0;border-bottom:1px solid var(--border);margin-top:4px}
+        .logo{display:flex;align-items:center;gap:12px}
+        .logo-icon{width:44px;height:44px;background:linear-gradient(135deg,var(--blue),var(--purple));border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px}
+        .logo-text{font-family:'Space Mono',monospace;font-size:1.2rem;font-weight:700;letter-spacing:2px}
+        .logo-sub{font-size:.65rem;color:var(--blue-l);letter-spacing:1.5px}
+        .badge{font-size:.7rem;background:rgba(59,130,246,.15);color:var(--blue-l);padding:4px 12px;border-radius:20px;border:1px solid rgba(59,130,246,.25)}
+
+        .hero{text-align:center;padding:2.5rem 0 1.5rem}
+        .hero h1{font-size:1.8rem;margin-bottom:.5rem}
+        .hero p{color:var(--gray);font-size:.9rem;max-width:600px;margin:0 auto;line-height:1.6}
+
+        .privacy-banner{background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.2);border-radius:12px;padding:1rem 1.5rem;margin-bottom:2rem;display:flex;align-items:center;gap:12px}
+        .privacy-banner .icon{font-size:1.5rem}
+        .privacy-banner .text{font-size:.82rem;color:var(--mint);line-height:1.5}
+        .privacy-banner strong{color:var(--green)}
+
+        .steps{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:2rem}
+        .step-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:1.8rem;position:relative}
+        .step-card.full{grid-column:1/-1}
+        .step-num{position:absolute;top:-10px;left:20px;background:var(--blue);color:white;font-size:.7rem;font-weight:700;padding:3px 10px;border-radius:10px;letter-spacing:1px}
+        .step-card h3{font-size:1rem;margin-bottom:.3rem;margin-top:.5rem;display:flex;align-items:center;gap:8px}
+        .step-card>p{color:var(--gray);font-size:.8rem;margin-bottom:1rem}
+
+        /* Upload zone */
+        .upload-zone{border:2px dashed rgba(59,130,246,.3);border-radius:12px;padding:2rem;text-align:center;cursor:pointer;transition:all .3s;position:relative;background:rgba(59,130,246,.03)}
+        .upload-zone:hover{border-color:var(--blue);background:rgba(59,130,246,.06)}
+        .upload-zone.active{border-color:var(--green);background:rgba(16,185,129,.05)}
+        .upload-zone input{position:absolute;inset:0;opacity:0;cursor:pointer}
+        .upload-zone .icon{font-size:2.5rem;margin-bottom:.5rem}
+        .upload-zone .text{color:var(--gray);font-size:.85rem}
+        .upload-zone .filename{color:var(--green);font-size:.9rem;font-weight:600;margin-top:.5rem;display:none}
+        .wallet-info{display:none;margin-top:1rem;background:var(--card2);border-radius:10px;padding:1rem;font-size:.8rem}
+        .wallet-info .row{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(30,41,59,.5)}
+        .wallet-info .row:last-child{border:none}
+        .wallet-info .label{color:var(--dim)}
+        .wallet-info .value{font-family:'Space Mono',monospace;color:var(--cyan);font-size:.75rem}
+
+        /* Form inputs */
+        .input-group{margin-bottom:1rem}
+        .input-group label{display:block;font-size:.75rem;font-weight:600;color:var(--blue-l);letter-spacing:1px;text-transform:uppercase;margin-bottom:5px}
+        .input-group input{width:100%;padding:12px 14px;background:rgba(10,15,30,.8);border:1.5px solid var(--border);border-radius:10px;color:var(--white);font-family:'Space Mono',monospace;font-size:1rem;transition:border-color .2s}
+        .input-group input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(59,130,246,.1)}
+        .input-group .hint{font-size:.72rem;color:var(--dim);margin-top:4px}
+        .input-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+
+        /* Button */
+        .btn-prove{width:100%;padding:16px;background:linear-gradient(135deg,var(--blue),var(--purple));color:white;border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:1.05rem;font-weight:700;cursor:pointer;transition:all .3s;letter-spacing:.5px;margin-top:.5rem}
+        .btn-prove:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(59,130,246,.3)}
+        .btn-prove:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none}
+
+        /* Progress */
+        .progress{display:none;text-align:center;padding:2rem 0}
+        .progress .spinner{width:60px;height:60px;border:4px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 1rem}
+        @keyframes spin{to{transform:rotate(360deg)}}
+        .progress .status{color:var(--blue-l);font-size:.95rem;font-weight:500}
+        .progress .substatus{color:var(--dim);font-size:.8rem;margin-top:.3rem}
+
+        /* Result */
+        .result{display:none}
+        .result-success{background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.25);border-radius:16px;padding:2rem;text-align:center;margin-bottom:1.5rem}
+        .result-success h2{color:var(--green);font-size:1.5rem;margin-bottom:.5rem}
+        .result-success p{color:var(--gray);font-size:.85rem}
+        .result-error{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.25);border-radius:16px;padding:2rem;text-align:center;margin-bottom:1.5rem}
+        .result-error h2{color:var(--red);font-size:1.5rem;margin-bottom:.5rem}
+        .result-error p{color:var(--gray);font-size:.85rem}
+
+        .result-details{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin-bottom:1.5rem}
+        .result-details h3{font-size:.95rem;margin-bottom:1rem}
+        .detail-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)}
+        .detail-row:last-child{border:none}
+        .detail-row .label{color:var(--dim);font-size:.82rem}
+        .detail-row .value{font-family:'Space Mono',monospace;color:var(--cyan);font-size:.78rem}
+
+        .download-buttons{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:1.5rem}
+        .dl-btn{padding:12px 24px;border-radius:10px;font-weight:700;font-size:.9rem;text-decoration:none;transition:all .2s;border:none;cursor:pointer;font-family:'DM Sans',sans-serif}
+        .dl-btn.proof{background:var(--blue);color:white}
+        .dl-btn.proof:hover{background:var(--blue-l)}
+        .dl-btn.public{background:var(--purple);color:white}
+        .dl-btn.public:hover{background:#A78BFA}
+        .dl-btn.reset{background:var(--card2);color:var(--gray);border:1px solid var(--border)}
+        .dl-btn.reset:hover{color:white;border-color:var(--dim)}
+
+        .privacy-footer{background:rgba(59,130,246,.05);border:1px solid rgba(59,130,246,.15);border-radius:12px;padding:1.2rem 1.5rem;margin:2rem 0}
+        .privacy-footer h4{font-size:.85rem;color:var(--blue-l);margin-bottom:.5rem}
+        .privacy-footer .cols{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+        .privacy-footer .col h5{font-size:.75rem;color:var(--green);margin-bottom:.3rem;letter-spacing:1px}
+        .privacy-footer .col.danger h5{color:var(--red)}
+        .privacy-footer .col li{font-size:.78rem;color:var(--gray);list-style:none;padding:2px 0}
+        .privacy-footer .col li::before{content:'✓ ';color:var(--green)}
+        .privacy-footer .col.danger li::before{content:'✗ ';color:var(--red)}
+    </style>
+</head>
+<body>
+    <div class="topbar"></div>
+    <div class="container">
+        <nav>
+            <div class="logo">
+                <div class="logo-icon">📱</div>
+                <div>
+                    <div class="logo-text">PROVER</div>
+                    <div class="logo-sub">PERSONAL PROOF DEVICE</div>
+                </div>
+            </div>
+            <div class="badge">🔒 Client-Side · Private</div>
+        </nav>
+
+        <div class="hero">
+            <h1>🔐 Generate Zero-Knowledge Proof</h1>
+            <p>Upload your VIDAA credential wallet and a verification nonce from CineVault.
+               Your private data never leaves this device - only the proof is shared.</p>
+        </div>
+
+        <div class="privacy-banner">
+            <div class="icon">🛡️</div>
+            <div class="text">
+                <strong>Privacy guarantee:</strong> Your birth year, citizen secret, identity, and Merkle path
+                stay on this device. The proof reveals ONLY that you meet the age requirement - nothing else.
+            </div>
+        </div>
+
+        <!-- FORM STATE -->
+        <div id="formState">
+            <div class="steps">
+                <!-- Step 1: Upload wallet -->
+                <div class="step-card">
+                    <div class="step-num">STEP 1</div>
+                    <h3>📁 Upload Wallet</h3>
+                    <p>Your VIDAA credential wallet (JSON file from registration)</p>
+                    <div class="upload-zone" id="uploadZone">
+                        <input type="file" id="walletInput" accept=".json,application/json">
+                        <div class="icon" id="uploadIcon">📂</div>
+                        <div class="text" id="uploadText">Click or drag wallet_VR-XXXXX.json</div>
+                        <div class="filename" id="uploadFilename"></div>
+                    </div>
+                    <div class="wallet-info" id="walletInfo">
+                        <div class="row"><span class="label">Citizen ID</span><span class="value" id="wCitizen">-</span></div>
+                        <div class="row"><span class="label">Name</span><span class="value" id="wName">-</span></div>
+                        <div class="row"><span class="label">Birth Year</span><span class="value" id="wBirthYear">-</span></div>
+                        <div class="row"><span class="label">Leaf Index</span><span class="value" id="wLeafIndex">-</span></div>
+                        <div class="row"><span class="label">Merkle Root</span><span class="value" id="wRoot">-</span></div>
+                    </div>
+                </div>
+
+                <!-- Step 2: Enter nonce -->
+                <div class="step-card">
+                    <div class="step-num">STEP 2</div>
+                    <h3>🎲 Verifier Nonce</h3>
+                    <p>Paste the verification nonce from CineVault's verification page</p>
+                    <div class="input-group">
+                        <label>Verification Nonce</label>
+                        <input type="number" id="nonceInput" placeholder="e.g. 839271" min="1">
+                        <div class="hint">Get this from CineVault → "Verify My Age" page</div>
+                    </div>
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label>Current Year</label>
+                            <input type="number" id="yearInput" value="2026">
+                        </div>
+                        <div class="input-group">
+                            <label>Age Threshold</label>
+                            <input type="number" id="thresholdInput" value="18">
+                        </div>
+                    </div>
+                    <div class="hint" style="color:var(--gold);font-size:.72rem">⚠️ Year and threshold are set by the verifier. Changing them will cause verification to fail at CineVault.</div>
+                </div>
+
+                <!-- Step 3: Generate -->
+                <div class="step-card full">
+                    <div class="step-num">STEP 3</div>
+                    <h3>⚡ Generate Proof</h3>
+                    <p>Runs the Groth16 proving algorithm. Takes 10–30 seconds depending on your machine.</p>
+                    <button class="btn-prove" id="proveBtn" disabled>🔐 Generate Zero-Knowledge Proof</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- PROGRESS STATE -->
+        <div class="progress" id="progressState">
+            <div class="spinner"></div>
+            <div class="status" id="progressStatus">Generating witness...</div>
+            <div class="substatus" id="progressSub">Computing SHA-256 leaf hash + Merkle path verification + age predicate</div>
+        </div>
+
+        <!-- RESULT STATE -->
+        <div class="result" id="resultState">
+            <div id="resultBanner"></div>
+            <div class="result-details" id="resultDetails" style="display:none">
+                <h3>📊 Proof Summary</h3>
+                <div id="resultRows"></div>
+            </div>
+            <div class="download-buttons" id="downloadButtons" style="display:none">
+                <a href="/download/proof.json" class="dl-btn proof" download>⬇️ Download proof.json</a>
+                <a href="/download/public.json" class="dl-btn public" download>⬇️ Download public.json</a>
+                <button class="dl-btn reset" onclick="resetForm()">🔄 Generate Another Proof</button>
+            </div>
+        </div>
+
+        <div class="privacy-footer">
+            <h4>🔍 What happens during proof generation?</h4>
+            <div class="cols">
+                <div class="col">
+                    <h5>COMPUTED LOCALLY (private)</h5>
+                    <ul>
+                        <li>Recompute leaf hash from birth year + secret + nonce</li>
+                        <li>Walk Merkle tree using siblings + path indices</li>
+                        <li>Verify computed root matches public root</li>
+                        <li>Check birth_year + threshold ≤ current_year</li>
+                        <li>Bind proof to verifier's session nonce</li>
+                    </ul>
+                </div>
+                <div class="col danger">
+                    <h5>NEVER SHARED WITH VERIFIER</h5>
+                    <ul>
+                        <li>Your birth year</li>
+                        <li>Your citizen secret</li>
+                        <li>Your nonce issuance</li>
+                        <li>Your leaf index in the tree</li>
+                        <li>Your Merkle path siblings</li>
+                        <li>Your name or any personal data</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let walletData = null;
+        let walletFile = null;
+
+        // ── Wallet upload ──
+        const walletInput = document.getElementById('walletInput');
+        walletInput.addEventListener('change', handleWallet);
+
+        function handleWallet(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            walletFile = file;
+
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                try {
+                    walletData = JSON.parse(ev.target.result);
+
+                    // Validate
+                    if (!walletData.citizen_secret_hex || !walletData.merkle_root_hex) {
+                        throw new Error("Not a valid VIDAA wallet");
+                    }
+
+                    // Update UI
+                    document.getElementById('uploadZone').classList.add('active');
+                    document.getElementById('uploadIcon').textContent = '✅';
+                    document.getElementById('uploadText').style.display = 'none';
+                    document.getElementById('uploadFilename').style.display = 'block';
+                    document.getElementById('uploadFilename').textContent = file.name;
+
+                    // Show wallet info
+                    const info = document.getElementById('walletInfo');
+                    info.style.display = 'block';
+                    document.getElementById('wCitizen').textContent = walletData._meta?.citizen_id || '-';
+                    document.getElementById('wName').textContent = walletData._meta?.full_name || '-';
+                    document.getElementById('wBirthYear').textContent = walletData.birth_year;
+                    document.getElementById('wLeafIndex').textContent = '#' + walletData.leaf_index;
+                    document.getElementById('wRoot').textContent = '0x' + walletData.merkle_root_hex.slice(0, 20) + '...';
+
+                    checkReady();
+                } catch (err) {
+                    alert('Invalid wallet file: ' + err.message);
+                    walletData = null;
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // ── Form validation ──
+        const nonceInput = document.getElementById('nonceInput');
+        nonceInput.addEventListener('input', checkReady);
+
+        function checkReady() {
+            const btn = document.getElementById('proveBtn');
+            const ready = walletData && nonceInput.value && parseInt(nonceInput.value) > 0;
+            btn.disabled = !ready;
+        }
+
+        // ── Generate proof ──
+        document.getElementById('proveBtn').addEventListener('click', async () => {
+            if (!walletData || !walletFile) return;
+
+            const nonce = document.getElementById('nonceInput').value;
+            const year = document.getElementById('yearInput').value;
+            const threshold = document.getElementById('thresholdInput').value;
+
+            // Switch to progress state
+            document.getElementById('formState').style.display = 'none';
+            document.getElementById('progressState').style.display = 'block';
+            document.getElementById('resultState').style.display = 'none';
+
+            const statusEl = document.getElementById('progressStatus');
+            const subEl = document.getElementById('progressSub');
+
+            statusEl.textContent = 'Uploading wallet & generating witness...';
+            subEl.textContent = 'Computing SHA-256 hashes, verifying Merkle path...';
+
+            try {
+                const formData = new FormData();
+                formData.append('wallet', walletFile);
+                formData.append('verification_nonce', nonce);
+                formData.append('current_year', year);
+                formData.append('age_threshold', threshold);
+
+                // Update status after brief delay
+                setTimeout(() => {
+                    statusEl.textContent = 'Running Groth16 prover...';
+                    subEl.textContent = 'Generating cryptographic proof (~10-30 seconds)';
+                }, 3000);
+
+                const res = await fetch('/generate', { method: 'POST', body: formData });
+                const data = await res.json();
+
+                showResult(data, res.ok);
+            } catch (err) {
+                showResult({ error: 'Network error: ' + err.message }, false);
+            }
+        });
+
+        function showResult(data, success) {
+            document.getElementById('formState').style.display = 'none';
+            document.getElementById('progressState').style.display = 'none';
+            document.getElementById('resultState').style.display = 'block';
+
+            const banner = document.getElementById('resultBanner');
+            const details = document.getElementById('resultDetails');
+            const dlButtons = document.getElementById('downloadButtons');
+
+            if (success && data.success) {
+                banner.innerHTML = `
+                    <div class="result-success">
+                        <h2>✅ Proof Generated Successfully</h2>
+                        <p>Generated in ${data.elapsed_seconds}s for ${data.citizen_name} (${data.citizen_id})<br>
+                        Download the proof files and upload them to CineVault.</p>
+                    </div>`;
+                details.style.display = 'block';
+                dlButtons.style.display = 'flex';
+
+                document.getElementById('resultRows').innerHTML = `
+                    <div class="detail-row"><span class="label">Citizen</span><span class="value">${data.citizen_name}</span></div>
+                    <div class="detail-row"><span class="label">Proof size</span><span class="value">${data.proof_size} bytes</span></div>
+                    <div class="detail-row"><span class="label">Public signals</span><span class="value">${data.public_signals_count} values</span></div>
+                    <div class="detail-row"><span class="label">Merkle root</span><span class="value">${data.summary.merkle_root_prefix}</span></div>
+                    <div class="detail-row"><span class="label">Year / Threshold</span><span class="value">${data.summary.current_year} / ≥${data.summary.age_threshold}</span></div>
+                    <div class="detail-row"><span class="label">Verification nonce</span><span class="value">${data.summary.verification_nonce}</span></div>
+                    <div class="detail-row"><span class="label">Generation time</span><span class="value">${data.elapsed_seconds}s</span></div>
+                `;
+            } else {
+                const errMsg = data.error || 'Unknown error';
+                const isUnderage = data.underage || data.circuit_error;
+                banner.innerHTML = `
+                    <div class="result-error">
+                        <h2>${isUnderage ? '🚫 Age Requirement Not Met' : '❌ Proof Generation Failed'}</h2>
+                        <p>${errMsg}</p>
+                        ${data.detail ? '<p style="font-size:.75rem;margin-top:.5rem;color:var(--dim)">' + data.detail + '</p>' : ''}
+                    </div>`;
+                details.style.display = 'none';
+                dlButtons.style.display = 'flex';
+                // Hide download buttons, show only reset
+                document.querySelectorAll('.dl-btn.proof,.dl-btn.public').forEach(b => b.style.display = 'none');
+            }
+        }
+
+        function resetForm() {
+            walletData = null;
+            walletFile = null;
+            document.getElementById('walletInput').value = '';
+            document.getElementById('uploadZone').classList.remove('active');
+            document.getElementById('uploadIcon').textContent = '📂';
+            document.getElementById('uploadText').style.display = 'block';
+            document.getElementById('uploadFilename').style.display = 'none';
+            document.getElementById('walletInfo').style.display = 'none';
+            document.getElementById('nonceInput').value = '';
+            document.getElementById('proveBtn').disabled = true;
+
+            document.getElementById('formState').style.display = 'block';
+            document.getElementById('progressState').style.display = 'none';
+            document.getElementById('resultState').style.display = 'none';
+
+            // Reset download button visibility
+            document.querySelectorAll('.dl-btn.proof,.dl-btn.public').forEach(b => b.style.display = 'inline-block');
+        }
+    </script>
+</body>
+</html>

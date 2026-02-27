@@ -1,0 +1,78 @@
+{
+  "encoding_contract": {
+    "birth_year_encoding": "uint16 big-endian (2 bytes)",
+    "citizen_secret_encoding": "raw bytes (32 bytes)",
+    "nonce_issuance_encoding": "raw bytes (16 bytes)",
+    "leaf_preimage_total": "50 bytes = 400 bits",
+    "merkle_parent_preimage": "64 bytes = 512 bits",
+    "bit_order": "MSB first per byte, bytes left-to-right"
+  },
+  "citizens": [
+    {
+      "name": "Alex Miranov",
+      "birth_year": 2001,
+      "secret_hex": "a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2",
+      "nonce_hex": "1111111111111111aaaaaaaaaaaaaaaa",
+      "expected_leaf": "b2bd59f54cee1d2d27f501714aa81ffc7967d0f368a74cf48c43881a72aeaa41"
+    },
+    {
+      "name": "Priya Nair",
+      "birth_year": 1998,
+      "secret_hex": "deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef",
+      "nonce_hex": "2222222222222222bbbbbbbbbbbbbbbb",
+      "expected_leaf": "973d4551626ff3c2d93fc58c697c361d0fbedcff737aca7a434371e1bc591425"
+    },
+    {
+      "name": "Ravi Chen",
+      "birth_year": 2010,
+      "secret_hex": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+      "nonce_hex": "3333333333333333cccccccccccccccc",
+      "expected_leaf": "865b73d3f9d0d0e6080d12a5a66643cc9023fd54967d8dc40468c3fbead65922"
+    },
+    {
+      "name": "Mei Tanaka",
+      "birth_year": 1996,
+      "secret_hex": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+      "nonce_hex": "4444444444444444dddddddddddddddd",
+      "expected_leaf": "28dcc48d42f4afd0dc6da2acc113d1fb604b1ae53a5f46200118ec5e8956e8ff"
+    }
+  ],
+  "tree_root": "7b5a7fa16c82c816f856b40a9c0dc491aa67d588f24ab3a27ed8184c444c050c",
+  "tree_layers": [
+    [
+      "b2bd59f54cee1d2d27f501714aa81ffc7967d0f368a74cf48c43881a72aeaa41",
+      "973d4551626ff3c2d93fc58c697c361d0fbedcff737aca7a434371e1bc591425",
+      "865b73d3f9d0d0e6080d12a5a66643cc9023fd54967d8dc40468c3fbead65922",
+      "28dcc48d42f4afd0dc6da2acc113d1fb604b1ae53a5f46200118ec5e8956e8ff",
+      "0000000000000000000000000000000000000000000000000000000000000000",
+      "0000000000000000000000000000000000000000000000000000000000000000",
+      "0000000000000000000000000000000000000000000000000000000000000000",
+      "0000000000000000000000000000000000000000000000000000000000000000"
+    ],
+    [
+      "eec56f374b2c171263e48f186536d040b599bf6ac54e8becf5875bf77b917147",
+      "4bf5cfe512448f3a30726ca386bafca5e5ea9a2cfff280c2f17b4f35692c172c",
+      "f5a5fd42d16a20302798ef6ed309979b43003d2320d9f0e8ea9831a92759fb4b",
+      "f5a5fd42d16a20302798ef6ed309979b43003d2320d9f0e8ea9831a92759fb4b"
+    ],
+    [
+      "8b74d3879aa38b2214a7dedeefc31be4f28898e460389daa0baaab72185299eb",
+      "db56114e00fdd4c1f85c892bf35ac9a89289aaecb1ebd0a96cde606a748b5d71"
+    ],
+    [
+      "7b5a7fa16c82c816f856b40a9c0dc491aa67d588f24ab3a27ed8184c444c050c"
+    ]
+  ],
+  "alex_path": {
+    "siblings": [
+      "973d4551626ff3c2d93fc58c697c361d0fbedcff737aca7a434371e1bc591425",
+      "4bf5cfe512448f3a30726ca386bafca5e5ea9a2cfff280c2f17b4f35692c172c",
+      "db56114e00fdd4c1f85c892bf35ac9a89289aaecb1ebd0a96cde606a748b5d71"
+    ],
+    "indices": [
+      0,
+      0,
+      0
+    ]
+  }
+}

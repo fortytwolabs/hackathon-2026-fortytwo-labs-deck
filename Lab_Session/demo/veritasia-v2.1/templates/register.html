@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register Citizen - VIDAA</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap');
+        *{margin:0;padding:0;box-sizing:border-box}
+        :root{--dark-bg:#0A1628;--navy:#0F2440;--card:#111D33;--teal:#0D9488;--teal-light:#14B8A6;--mint:#5EEAD4;--white:#FFF;--gray:#94A3B8;--gold:#F59E0B;--green:#059669;--red:#EF4444;--purple:#8B5CF6;--blue:#3B82F6}
+        body{font-family:'DM Sans',sans-serif;background:var(--dark-bg);color:var(--white);min-height:100vh}
+        body::before{content:'';position:fixed;top:0;left:0;width:100%;height:100%;background:radial-gradient(circle at 30% 30%,rgba(13,148,136,.06)0%,transparent 50%),radial-gradient(circle at 70% 70%,rgba(59,130,246,.04)0%,transparent 50%);pointer-events:none;z-index:0}
+        .topbar{height:4px;background:linear-gradient(90deg,var(--teal),var(--mint),var(--teal));position:fixed;top:0;left:0;right:0;z-index:100}
+        .container{position:relative;z-index:1;max-width:1250px;margin:0 auto;padding:0 2rem}
+        nav{display:flex;align-items:center;justify-content:space-between;padding:1.5rem 0;border-bottom:1px solid rgba(13,148,136,.15);margin-top:4px}
+        .logo{display:flex;align-items:center;gap:12px;text-decoration:none}
+        .logo-icon{width:44px;height:44px;background:var(--teal);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px}
+        .logo-text{font-family:'Space Mono',monospace;font-size:1.3rem;font-weight:700;letter-spacing:3px;color:var(--white)}
+        .logo-sub{font-size:.65rem;color:var(--teal-light);letter-spacing:1.5px}
+        nav a{color:var(--gray);text-decoration:none;font-size:.9rem;font-weight:500;padding:.5rem 1rem;border-radius:8px;transition:all .2s}
+        nav a:hover{color:var(--white);background:rgba(13,148,136,.1)}
+        nav a.active{color:var(--teal-light);background:rgba(13,148,136,.15)}
+        .page-header{padding:2rem 0 1.2rem}
+        .page-header h1{font-size:1.8rem;margin-bottom:.3rem}
+        .page-header p{color:var(--gray);font-size:.9rem}
+        .capacity-bar{margin-top:.8rem;background:rgba(15,36,64,.6);border-radius:8px;padding:.6rem 1rem;display:inline-flex;align-items:center;gap:12px;font-size:.8rem;border:1px solid rgba(13,148,136,.15)}
+        .capacity-bar .dots{display:flex;gap:4px}
+        .capacity-bar .dot{width:12px;height:12px;border-radius:50%;background:rgba(13,148,136,.2);border:1px solid rgba(13,148,136,.3)}
+        .capacity-bar .dot.filled{background:var(--teal)}
+        .main-grid{display:grid;grid-template-columns:1fr 1fr;gap:2rem;padding-bottom:3rem}
+        .form-card{background:var(--card);border:1px solid rgba(13,148,136,.12);border-radius:16px;padding:2rem}
+        .form-card h2{font-size:1.15rem;margin-bottom:.3rem;display:flex;align-items:center;gap:8px}
+        .form-card>p{color:var(--gray);font-size:.82rem;margin-bottom:1.5rem}
+        .form-group{margin-bottom:1.1rem}
+        .form-group label{display:block;font-size:.78rem;font-weight:600;color:var(--teal-light);letter-spacing:1px;margin-bottom:5px;text-transform:uppercase}
+        .form-group input,.form-group select{width:100%;padding:11px 14px;background:rgba(10,22,40,.8);border:1.5px solid rgba(13,148,136,.2);border-radius:10px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:.92rem;transition:border-color .2s}
+        .form-group input:focus,.form-group select:focus{outline:none;border-color:var(--teal);box-shadow:0 0 0 3px rgba(13,148,136,.1)}
+        .form-group select option{background:var(--navy)}
+        .form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+        .photo-upload{position:relative;width:100%;height:160px;border:2px dashed rgba(13,148,136,.3);border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all .3s;overflow:hidden;background:rgba(10,22,40,.5)}
+        .photo-upload:hover{border-color:var(--teal);background:rgba(13,148,136,.05)}
+        .photo-upload input[type="file"]{position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;cursor:pointer}
+        .photo-upload .icon{font-size:2rem;margin-bottom:.4rem}
+        .photo-upload .text{color:var(--gray);font-size:.82rem}
+        .photo-preview{width:100%;height:100%;object-fit:cover;border-radius:10px;display:none}
+        .btn-submit{width:100%;padding:15px;background:var(--teal);color:var(--white);border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;transition:all .3s;margin-top:.5rem;letter-spacing:.5px}
+        .btn-submit:hover{background:var(--teal-light);transform:translateY(-1px);box-shadow:0 6px 24px rgba(13,148,136,.3)}
+        .btn-submit:disabled{opacity:.6;cursor:not-allowed;transform:none}
+        .spinner{display:none;width:24px;height:24px;border:3px solid rgba(13,148,136,.2);border-top-color:var(--teal);border-radius:50%;animation:spin .8s linear infinite;margin:1rem auto 0}
+        @keyframes spin{to{transform:rotate(360deg)}}
+        .result-panel{display:flex;flex-direction:column;gap:1.5rem}
+        .placeholder-panel{background:var(--card);border:1px solid rgba(13,148,136,.12);border-radius:16px;padding:3rem 2rem;text-align:center}
+        .placeholder-panel .icon{font-size:3rem;margin-bottom:1rem}
+        .placeholder-panel h3{margin-bottom:.5rem}
+        .placeholder-panel p{color:var(--gray);font-size:.85rem;line-height:1.6}
+        .result-card{background:var(--card);border:1px solid rgba(13,148,136,.12);border-radius:16px;padding:1.5rem;display:none}
+        .result-card.visible{display:block;animation:fadeIn .5s ease}
+        @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+        .result-card h3{font-size:1rem;margin-bottom:1rem;display:flex;align-items:center;gap:8px}
+        .derivation-step{padding:.6rem .8rem;margin-bottom:.5rem;background:rgba(10,22,40,.6);border-radius:8px;border-left:3px solid var(--teal)}
+        .derivation-step.leaf{border-left-color:var(--mint);background:rgba(13,148,136,.08)}
+        .derivation-step.merkle{border-left-color:var(--gold);background:rgba(245,158,11,.05)}
+        .derivation-step.root{border-left-color:var(--gold);background:rgba(245,158,11,.08)}
+        .step-label{font-size:.7rem;color:var(--teal-light);letter-spacing:1.5px;font-weight:600;margin-bottom:3px}
+        .step-value{font-family:'Space Mono',monospace;font-size:.78rem;color:var(--mint);word-break:break-all;line-height:1.4}
+        .step-value.gold{color:var(--gold)}
+        .download-btn{display:inline-block;padding:10px 18px;background:var(--teal);color:var(--white);text-decoration:none;border-radius:8px;font-size:.85rem;font-weight:600;margin-top:.8rem;transition:all .2s}
+        .download-btn:hover{background:var(--teal-light)}
+        .download-btn.wallet{background:var(--gold);color:#000}
+        .download-btn.wallet:hover{background:#FBBF24}
+        .status-success{color:var(--green);font-weight:700;font-size:.9rem}
+    </style>
+</head>
+<body>
+    <div class="topbar"></div>
+    <div class="container">
+        <nav>
+            <div class="logo">
+                <div class="logo-icon">🏛️</div>
+                <div><div class="logo-text">VIDAA</div><div class="logo-sub">IDENTITY ASSURANCE AUTHORITY</div></div>
+            </div>
+            <div>
+                <a href="/">Home</a>
+                <a href="/register" class="active">Register</a>
+                <a href="/dashboard">Database</a>
+                <a href="/merkle">🌳 Tree</a>
+            </div>
+        </nav>
+
+        <div class="page-header">
+            <h1>📝 Register New Citizen</h1>
+            <p>Issue a Merkle-tree credential - generates leaf hash, updates the tree, and creates a credential wallet.</p>
+            <div class="capacity-bar">
+                <span>Registry Capacity:</span>
+                <div class="dots">
+                    {% for i in range(max_citizens) %}
+                    <div class="dot {{ 'filled' if i < citizen_count }}"></div>
+                    {% endfor %}
+                </div>
+                <span>{{ citizen_count }} / {{ max_citizens }}</span>
+            </div>
+        </div>
+
+        <div class="main-grid">
+            <div class="form-card">
+                <h2>🔐 Citizen Registration</h2>
+                <p>All fields are hashed into a Merkle leaf. Only the tree root is public.</p>
+                <form id="registerForm" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" name="full_name" id="full_name" required placeholder="Alex Miranov">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Date of Birth</label>
+                            <input type="date" name="date_of_birth" id="date_of_birth" required>
+                        </div>
+                        <div class="form-group">
+                            <label>District</label>
+                            <select name="district" id="district" required>
+                                <option value="">Select district…</option>
+                                {% for d in districts %}
+                                <option value="{{ d }}">{{ d }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Blood Group</label>
+                            <select name="blood_group"><option value="">Select</option><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>AB+</option><option>AB-</option><option>O+</option><option>O-</option></select>
+                        </div>
+                        <div class="form-group">
+                            <label>Gender</label>
+                            <select name="gender"><option value="">Select</option><option>Male</option><option>Female</option><option>Non-Binary</option></select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Citizen Photo</label>
+                        <div class="photo-upload" id="photoDropzone">
+                            <img class="photo-preview" id="photoPreview" alt="Preview">
+                            <div class="icon" id="uploadIcon">📸</div>
+                            <div class="text" id="uploadText">Click or drag photo · JPG/PNG · max 5MB</div>
+                            <input type="file" name="photo" id="photoInput" accept="image/*">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-submit" id="submitBtn">🌳 Issue Merkle Credential &amp; Generate Wallet</button>
+                    <div class="spinner" id="spinner"></div>
+                </form>
+            </div>
+
+            <div class="result-panel">
+                <div class="placeholder-panel" id="placeholder">
+                    <div class="icon">🌳</div>
+                    <h3>Merkle Credential Preview</h3>
+                    <p>Submit the form to see:<br>• Live leaf hash derivation (SHA-256)<br>• Merkle tree insertion &amp; root update<br>• Credential wallet for ZK proofs<br>• Generated ID card with Merkle info</p>
+                </div>
+                <div class="result-card" id="derivationCard">
+                    <h3>🧮 Merkle Leaf Derivation</h3>
+                    <div id="derivationSteps"></div>
+                </div>
+                <div class="result-card" id="merkleCard">
+                    <h3>🌳 Merkle Tree Update</h3>
+                    <div id="merkleSteps"></div>
+                </div>
+                <div class="result-card" id="cardResult">
+                    <h3>🪪 Identity Card &amp; Wallet</h3>
+                    <div id="cardContainer"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('photoInput').addEventListener('change', function(e){
+            const file = e.target.files[0];
+            if(file){
+                const r = new FileReader();
+                r.onload = ev => {
+                    document.getElementById('photoPreview').src = ev.target.result;
+                    document.getElementById('photoPreview').style.display = 'block';
+                    document.getElementById('uploadIcon').style.display = 'none';
+                    document.getElementById('uploadText').style.display = 'none';
+                };
+                r.readAsDataURL(file);
+            }
+        });
+
+        document.getElementById('registerForm').addEventListener('submit', async function(e){
+            e.preventDefault();
+            const btn = document.getElementById('submitBtn');
+            const spinner = document.getElementById('spinner');
+            btn.disabled = true; btn.textContent = 'Processing…'; spinner.style.display = 'block';
+
+            try {
+                const res = await fetch('/register', {method:'POST', body: new FormData(this)});
+                const data = await res.json();
+                if(data.error){ alert('Error: '+data.error); btn.disabled=false; btn.textContent='🌳 Issue Merkle Credential & Generate Wallet'; spinner.style.display='none'; return; }
+
+                document.getElementById('placeholder').style.display = 'none';
+                showDerivation(data.derivation, data.citizen);
+                showMerkle(data.merkle);
+                showCard(data.card_url, data.citizen.citizen_id, data.wallet_url);
+            } catch(err){ alert('Error: '+err.message); }
+
+            btn.disabled = false; btn.textContent = '🌳 Issue Another Credential'; spinner.style.display = 'none';
+        });
+
+        function showDerivation(d, c){
+            const card = document.getElementById('derivationCard');
+            document.getElementById('derivationSteps').innerHTML = `
+                <div class="derivation-step">
+                    <div class="step-label">STEP 1 - BIRTH YEAR → 16-BIT BIG-ENDIAN</div>
+                    <div class="step-value">${d.step1_birth_year} → ${d.step1_birth_year_hex} → ${d.step1_birth_year_bits}</div>
+                </div>
+                <div class="derivation-step">
+                    <div class="step-label">STEP 2 - CITIZEN SECRET (256 BITS - GENERATED BY VIDAA)</div>
+                    <div class="step-value">${d.step2_citizen_secret} &nbsp; (${d.step2_secret_length})</div>
+                </div>
+                <div class="derivation-step">
+                    <div class="step-label">STEP 3 - NONCE ISSUANCE (128 BITS)</div>
+                    <div class="step-value">${d.step3_nonce_issuance} &nbsp; (${d.step3_nonce_length})</div>
+                </div>
+                <div class="derivation-step">
+                    <div class="step-label">STEP 4 - PREIMAGE CONCATENATION</div>
+                    <div class="step-value">birth_year_bytes ‖ citizen_secret ‖ nonce_issuance = ${d.step4_preimage_size}</div>
+                </div>
+                <div class="derivation-step leaf">
+                    <div class="step-label">STEP 5 - SHA-256 → LEAF HASH</div>
+                    <div class="step-value">0x${d.step5_leaf_hash}</div>
+                </div>
+                <div class="derivation-step">
+                    <div class="step-label">STEP 6 - LEAF INDEX IN TREE</div>
+                    <div class="step-value">#${d.step6_leaf_index}</div>
+                </div>
+                <div style="margin-top:.8rem"><span class="status-success">✓ Leaf Hash Computed</span>
+                <span style="color:var(--gray);font-size:.75rem;margin-left:8px">ID: ${c.citizen_id}</span></div>
+            `;
+            card.classList.add('visible');
+        }
+
+        function showMerkle(m){
+            const card = document.getElementById('merkleCard');
+            let siblingsHtml = m.path_siblings.map((s,i) =>
+                `<div class="derivation-step merkle">
+                    <div class="step-label">LEVEL ${i} SIBLING (${m.path_indices[i]===0?'RIGHT':'LEFT'} neighbor)</div>
+                    <div class="step-value">${s}</div>
+                </div>`
+            ).join('');
+
+            document.getElementById('merkleSteps').innerHTML = `
+                ${siblingsHtml}
+                <div class="derivation-step root">
+                    <div class="step-label">MERKLE ROOT (PUBLIC - shared with ALL verifiers)</div>
+                    <div class="step-value gold">0x${m.root}</div>
+                </div>
+                <div style="margin-top:.6rem;font-size:.78rem;color:var(--gray)">
+                    Tree depth: ${m.tree_depth} · Total citizens: ${m.total_leaves} / 8 ·
+                    Constraints: ~${(m.tree_depth+1)*29}K
+                </div>
+            `;
+            card.classList.add('visible');
+        }
+
+        function showCard(cardUrl, citizenId, walletUrl){
+            const card = document.getElementById('cardResult');
+            document.getElementById('cardContainer').innerHTML = `
+                <img src="${cardUrl}" alt="ID Card" style="max-width:100%;border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,.4)">
+                <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:1rem">
+                    <a href="${cardUrl}" download class="download-btn">⬇️ Download ID Card</a>
+                    <a href="${walletUrl}" class="download-btn wallet">📁 Download Credential Wallet</a>
+                    <a href="/citizen/${citizenId}" class="download-btn" style="background:var(--navy)">📋 View Details</a>
+                </div>
+            `;
+            card.classList.add('visible');
+        }
+    </script>
+</body>
+</html>

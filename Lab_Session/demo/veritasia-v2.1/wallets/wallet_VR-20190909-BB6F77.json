@@ -1,0 +1,27 @@
+{
+  "_meta": {
+    "version": "2.1",
+    "issuer": "VIDAA - Veritasian Identity Assurance Authority",
+    "citizen_id": "VR-20190909-BB6F77",
+    "full_name": "Barsha Bhatt",
+    "issued_at": "2026-02-19T15:54:13.357297",
+    "tree_depth": 3,
+    "WARNING": "PRIVATE - Never share with verifiers."
+  },
+  "birth_year": 2019,
+  "citizen_secret_hex": "8d74317dea6b78091bee5881f7fffa98f793dd5a19ba4e7f281d702a86077206",
+  "nonce_issuance_hex": "54953d0fbc60bdfd0be4459daa0a24b6",
+  "leaf_hash_hex": "1371c56ecb5eead4aaee6c77d872564786495939fa36a3c25ae08fac5c11fc5c",
+  "leaf_index": 1,
+  "path_indices": [
+    1,
+    0,
+    0
+  ],
+  "path_siblings_hex": [
+    "88735904a3ef37269eacc4681e63a8c2b81f09f9e98d16a0ed406613394748d9",
+    "f5a5fd42d16a20302798ef6ed309979b43003d2320d9f0e8ea9831a92759fb4b",
+    "db56114e00fdd4c1f85c892bf35ac9a89289aaecb1ebd0a96cde606a748b5d71"
+  ],
+  "merkle_root_hex": "2dbf51de557eb8b0c9878e12a5068a53a35c10a00b600002e411dfd89e68f257"
+}

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Database - VIDAA</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap');
+        *{margin:0;padding:0;box-sizing:border-box}
+        :root{--dark-bg:#0A1628;--navy:#0F2440;--card:#111D33;--teal:#0D9488;--teal-light:#14B8A6;--mint:#5EEAD4;--white:#FFF;--gray:#94A3B8;--gold:#F59E0B;--green:#059669;--red:#EF4444}
+        body{font-family:'DM Sans',sans-serif;background:var(--dark-bg);color:var(--white);min-height:100vh}
+        body::before{content:'';position:fixed;top:0;left:0;width:100%;height:100%;background:radial-gradient(circle at 30% 30%,rgba(13,148,136,.06)0%,transparent 50%);pointer-events:none;z-index:0}
+        .topbar{height:4px;background:linear-gradient(90deg,var(--teal),var(--mint),var(--teal));position:fixed;top:0;left:0;right:0;z-index:100}
+        .container{position:relative;z-index:1;max-width:1300px;margin:0 auto;padding:0 2rem}
+        nav{display:flex;align-items:center;justify-content:space-between;padding:1.5rem 0;border-bottom:1px solid rgba(13,148,136,.15);margin-top:4px}
+        .logo{display:flex;align-items:center;gap:12px}
+        .logo-icon{width:44px;height:44px;background:var(--teal);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px}
+        .logo-text{font-family:'Space Mono',monospace;font-size:1.3rem;font-weight:700;letter-spacing:3px}
+        .logo-sub{font-size:.65rem;color:var(--teal-light);letter-spacing:1.5px}
+        nav a{color:var(--gray);text-decoration:none;font-size:.9rem;font-weight:500;padding:.5rem 1rem;border-radius:8px;transition:all .2s}
+        nav a:hover{color:var(--white);background:rgba(13,148,136,.1)}
+        nav a.active{color:var(--teal-light);background:rgba(13,148,136,.15)}
+        .page-header{padding:2rem 0 1rem}
+        .page-header h1{font-size:1.8rem;margin-bottom:.3rem}
+        .page-header p{color:var(--gray)}
+        .root-box{margin:1.2rem 0 1.5rem;padding:1.2rem 1.5rem;background:var(--card);border:1px solid rgba(245,158,11,.2);border-radius:14px}
+        .root-box .label{font-size:.72rem;color:var(--gold);letter-spacing:2px;font-weight:600;margin-bottom:.3rem}
+        .root-box .value{font-family:'Space Mono',monospace;color:var(--mint);font-size:.88rem;word-break:break-all}
+        .root-box .meta{font-size:.78rem;color:var(--gray);margin-top:.5rem}
+        .stats{display:flex;gap:1rem;margin-bottom:1.5rem;flex-wrap:wrap}
+        .stat{background:var(--card);border:1px solid rgba(13,148,136,.12);border-radius:12px;padding:1rem 1.5rem;flex:1;min-width:150px}
+        .stat .num{font-size:1.8rem;font-weight:700;color:var(--teal-light)}
+        .stat .lbl{font-size:.75rem;color:var(--gray);margin-top:.2rem}
+        table{width:100%;border-collapse:collapse;margin-bottom:3rem;background:var(--card);border-radius:14px;overflow:hidden;border:1px solid rgba(13,148,136,.12)}
+        th{background:rgba(13,148,136,.12);padding:.75rem 1rem;text-align:left;font-size:.72rem;color:var(--teal-light);letter-spacing:1.5px;font-weight:600;text-transform:uppercase}
+        td{padding:.7rem 1rem;border-top:1px solid rgba(13,148,136,.06);font-size:.82rem}
+        tr:hover{background:rgba(13,148,136,.04)}
+        .tag{display:inline-block;padding:2px 8px;border-radius:4px;font-size:.65rem;font-weight:600;letter-spacing:1px}
+        .tag-private{background:rgba(239,68,68,.12);color:var(--red)}
+        .tag-public{background:rgba(5,150,105,.12);color:var(--green)}
+        .tag-merkle{background:rgba(245,158,11,.12);color:var(--gold)}
+        .hash{font-family:'Space Mono',monospace;color:var(--mint);font-size:.72rem}
+        a.view-link{color:var(--teal-light);text-decoration:none}
+        a.view-link:hover{text-decoration:underline}
+        .empty{text-align:center;padding:4rem 2rem;color:var(--gray)}
+        .empty .icon{font-size:3rem;margin-bottom:1rem}
+        footer{border-top:1px solid rgba(13,148,136,.1);padding:2rem 0;text-align:center;color:var(--gray);font-size:.85rem}
+    </style>
+</head>
+<body>
+    <div class="topbar"></div>
+    <div class="container">
+        <nav>
+            <div class="logo">
+                <div class="logo-icon">🏛️</div>
+                <div><div class="logo-text">VIDAA</div><div class="logo-sub">IDENTITY ASSURANCE AUTHORITY</div></div>
+            </div>
+            <div>
+                <a href="/">Home</a>
+                <a href="/register">Register</a>
+                <a href="/dashboard" class="active">Database</a>
+                <a href="/merkle">🌳 Tree</a>
+            </div>
+        </nav>
+
+        <div class="page-header">
+            <h1>🗄️ Citizen Registry &amp; Merkle State</h1>
+            <p>All registered citizens and the current Merkle tree state. Columns marked <span class="tag tag-private">PRIVATE</span> are never exposed to verifiers.</p>
+        </div>
+
+        {% if state and state.merkle_root %}
+        <div class="root-box">
+            <div class="label">🌳 CURRENT MERKLE ROOT (THE ONLY PUBLIC DATA)</div>
+            <div class="value">0x{{ state.merkle_root }}</div>
+            <div class="meta">
+                Depth: {{ tree_depth }} · Citizens: {{ state.total_leaves }} / {{ max_citizens }} · 
+                Updated: {{ state.updated_at[:19] }} · 
+                <a href="/merkle" style="color:var(--teal-light)">View Tree →</a> · 
+                <a href="/api/root" style="color:var(--gold)">API: /api/root</a>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="stats">
+            <div class="stat"><div class="num">{{ citizens|length }}</div><div class="lbl">Citizens Registered</div></div>
+            <div class="stat"><div class="num">{{ max_citizens }}</div><div class="lbl">Tree Capacity (depth {{ tree_depth }})</div></div>
+            <div class="stat"><div class="num">~{{ ((citizens|length)+1) * 29 }}K</div><div class="lbl">Est. Circuit Constraints</div></div>
+            <div class="stat"><div class="num">{{ max_citizens - citizens|length }}</div><div class="lbl">Slots Remaining</div></div>
+        </div>
+
+        {% if citizens %}
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Citizen ID</th>
+                    <th>Name <span class="tag tag-private">PRIVATE</span></th>
+                    <th>Birth Year <span class="tag tag-private">PRIVATE</span></th>
+                    <th>Leaf Hash <span class="tag tag-merkle">MERKLE</span></th>
+                    <th>Index</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for c in citizens %}
+                <tr>
+                    <td>{{ c.leaf_index }}</td>
+                    <td><span class="hash">{{ c.citizen_id }}</span></td>
+                    <td>{{ c.full_name }}</td>
+                    <td>{{ c.birth_year }}</td>
+                    <td><span class="hash">0x{{ c.leaf_hash[:20] }}...</span></td>
+                    <td>{{ c.leaf_index }}</td>
+                    <td>
+                        <a href="/citizen/{{ c.citizen_id }}" class="view-link">Details</a> · 
+                        <a href="/api/wallet/{{ c.citizen_id }}" class="view-link" style="color:var(--gold)">Wallet ↓</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty">
+            <div class="icon">📭</div>
+            <h3>No Citizens Registered Yet</h3>
+            <p>Head to <a href="/register" style="color:var(--teal-light)">Register</a> to add the first citizen to the Merkle tree.</p>
+        </div>
+        {% endif %}
+
+        <footer>
+            <p>VIDAA v2.0 - Merkle-Tree Enabled &nbsp;·&nbsp; Hackathon 2026 &nbsp;·&nbsp; 
+            API: <a href="/api/root" style="color:var(--teal-light)">/api/root</a> · 
+            <a href="/api/tree" style="color:var(--teal-light)">/api/tree</a> · 
+            <a href="/api/citizens" style="color:var(--teal-light)">/api/citizens</a></p>
+        </footer>
+    </div>
+</body>
+</html>

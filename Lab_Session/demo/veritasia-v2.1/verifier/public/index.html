@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CineVault - Age Verification</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap');
+        *{margin:0;padding:0;box-sizing:border-box}
+        :root{--bg:#0A0A0F;--card:#12121A;--card2:#1A1A26;--border:#2A2A3A;--red:#E11D48;--red-l:#FB7185;--gold:#F59E0B;--gold-l:#FCD34D;--white:#F8FAFC;--gray:#94A3B8;--dim:#64748B;--green:#10B981;--green-l:#34D399;--cyan:#06B6D4;--purple:#8B5CF6}
+        body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--white);min-height:100vh}
+        body::before{content:'';position:fixed;top:0;left:0;width:100%;height:100%;background:radial-gradient(ellipse at 50% 0%,rgba(225,29,72,.08)0%,transparent 60%),radial-gradient(circle at 80% 90%,rgba(245,158,11,.04)0%,transparent 40%);pointer-events:none}
+        .topbar{height:4px;background:linear-gradient(90deg,var(--red),var(--gold),var(--red));position:fixed;top:0;left:0;right:0;z-index:100}
+        .container{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:0 1.5rem}
+        nav{display:flex;align-items:center;justify-content:space-between;padding:1.5rem 0;border-bottom:1px solid var(--border);margin-top:4px}
+        .logo{display:flex;align-items:center;gap:12px}
+        .logo-icon{width:48px;height:48px;background:linear-gradient(135deg,var(--red),var(--gold));border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px}
+        .logo-text{font-family:'Space Mono',monospace;font-size:1.3rem;font-weight:700;letter-spacing:3px}
+        .logo-sub{font-size:.65rem;color:var(--red-l);letter-spacing:1.5px}
+        .status-badge{font-size:.7rem;padding:5px 14px;border-radius:20px;border:1px solid}
+        .status-badge.connected{background:rgba(16,185,129,.1);color:var(--green);border-color:rgba(16,185,129,.3)}
+        .status-badge.disconnected{background:rgba(225,29,72,.1);color:var(--red-l);border-color:rgba(225,29,72,.3)}
+
+        .hero{text-align:center;padding:3rem 0 2rem}
+        .hero h1{font-size:2.2rem;margin-bottom:.5rem;background:linear-gradient(135deg,var(--white),var(--gold-l));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+        .hero p{color:var(--gray);font-size:.92rem;max-width:550px;margin:0 auto}
+        .hero .age-badge{display:inline-block;margin-top:1rem;background:rgba(225,29,72,.12);border:1px solid rgba(225,29,72,.3);padding:8px 24px;border-radius:30px;font-size:.85rem;color:var(--red-l);font-weight:600}
+
+        /* ── STATES ── */
+        .state{display:none}
+        .state.active{display:block}
+
+        /* Landing */
+        .verify-btn{display:block;width:100%;max-width:400px;margin:2rem auto;padding:18px;background:linear-gradient(135deg,var(--red),#BE123C);color:white;border:none;border-radius:14px;font-family:'DM Sans',sans-serif;font-size:1.15rem;font-weight:700;cursor:pointer;transition:all .3s;letter-spacing:.5px}
+        .verify-btn:hover{transform:translateY(-2px);box-shadow:0 10px 40px rgba(225,29,72,.35)}
+
+        /* Nonce state */
+        .nonce-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:2.5rem;text-align:center;max-width:600px;margin:0 auto 2rem}
+        .nonce-card h2{font-size:1.2rem;margin-bottom:1rem}
+        .nonce-display{font-family:'Space Mono',monospace;font-size:3rem;font-weight:700;color:var(--gold);letter-spacing:8px;padding:1rem;background:rgba(245,158,11,.06);border:2px dashed rgba(245,158,11,.3);border-radius:12px;margin:1rem 0;user-select:all;cursor:pointer}
+        .nonce-display:hover{border-color:var(--gold)}
+        .nonce-timer{font-size:.8rem;color:var(--dim);margin-top:.5rem}
+        .nonce-instructions{color:var(--gray);font-size:.85rem;line-height:1.6;margin-top:1.5rem;text-align:left;background:var(--card2);padding:1rem 1.5rem;border-radius:10px}
+        .nonce-instructions ol{margin-left:1.2rem;margin-top:.5rem}
+        .nonce-instructions li{margin-bottom:.3rem}
+        .copy-hint{font-size:.72rem;color:var(--dim);margin-top:.3rem}
+
+        /* Upload state */
+        .upload-section{max-width:600px;margin:0 auto}
+        .upload-section h2{text-align:center;font-size:1.2rem;margin-bottom:.5rem}
+        .upload-section>p{text-align:center;color:var(--gray);font-size:.85rem;margin-bottom:1.5rem}
+        .upload-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem}
+        .upload-box{background:var(--card);border:2px dashed var(--border);border-radius:12px;padding:1.5rem;text-align:center;cursor:pointer;transition:all .3s;position:relative;min-height:120px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+        .upload-box:hover{border-color:var(--dim)}
+        .upload-box.loaded{border-color:var(--green);border-style:solid;background:rgba(16,185,129,.05)}
+        .upload-box input{position:absolute;inset:0;opacity:0;cursor:pointer}
+        .upload-box .icon{font-size:2rem;margin-bottom:.3rem}
+        .upload-box .label{font-size:.82rem;color:var(--gray)}
+        .upload-box .filename{font-size:.78rem;color:var(--green);font-weight:600;margin-top:.3rem;display:none}
+
+        .verify-submit{width:100%;padding:16px;background:linear-gradient(135deg,var(--red),#BE123C);color:white;border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:1.05rem;font-weight:700;cursor:pointer;transition:all .3s}
+        .verify-submit:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(225,29,72,.3)}
+        .verify-submit:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none}
+
+        /* Progress */
+        .verify-progress{text-align:center;padding:3rem 0}
+        .verify-progress .spinner{width:70px;height:70px;border:4px solid var(--border);border-top-color:var(--red);border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 1.5rem}
+        @keyframes spin{to{transform:rotate(360deg)}}
+        .verify-progress .text{color:var(--red-l);font-size:1rem;font-weight:500}
+        .verify-progress .sub{color:var(--dim);font-size:.82rem;margin-top:.3rem}
+
+        /* Result */
+        .result-banner{border-radius:16px;padding:2.5rem;text-align:center;margin-bottom:2rem}
+        .result-banner.pass{background:linear-gradient(135deg,rgba(16,185,129,.12),rgba(16,185,129,.05));border:2px solid rgba(16,185,129,.3)}
+        .result-banner.fail{background:linear-gradient(135deg,rgba(225,29,72,.12),rgba(225,29,72,.05));border:2px solid rgba(225,29,72,.3)}
+        .result-banner h1{font-size:2rem;margin-bottom:.3rem}
+        .result-banner.pass h1{color:var(--green)}
+        .result-banner.fail h1{color:var(--red)}
+        .result-banner p{color:var(--gray);font-size:.9rem}
+
+        /* Checks table */
+        .checks-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:1.5rem;margin-bottom:1.5rem}
+        .checks-card h3{font-size:1rem;margin-bottom:1rem;display:flex;align-items:center;gap:8px}
+        .check-row{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid rgba(42,42,58,.5)}
+        .check-row:last-child{border:none}
+        .check-icon{font-size:1.3rem}
+        .check-name{font-weight:600;font-size:.85rem}
+        .check-detail{font-size:.75rem;color:var(--dim)}
+        .check-values{text-align:right}
+        .check-values .expected{font-size:.7rem;color:var(--dim)}
+        .check-values .received{font-family:'Space Mono',monospace;font-size:.75rem;color:var(--cyan)}
+
+        /* Transparency */
+        .transparency{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:1.5rem;margin-bottom:1.5rem}
+        .transparency h3{font-size:1rem;margin-bottom:1rem}
+        .trans-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem}
+        .trans-col h4{font-size:.8rem;font-weight:700;letter-spacing:1px;margin-bottom:.6rem;padding-bottom:.4rem;border-bottom:1px solid var(--border)}
+        .trans-col.learned h4{color:var(--green)}
+        .trans-col.private h4{color:var(--red)}
+        .trans-col li{list-style:none;font-size:.82rem;color:var(--gray);padding:3px 0}
+        .trans-col.learned li::before{content:'✓ ';color:var(--green)}
+        .trans-col.private li::before{content:'✗ ';color:var(--red)}
+
+        .action-row{display:flex;gap:12px;justify-content:center;margin:2rem 0}
+        .action-btn{padding:12px 28px;border-radius:10px;font-weight:700;font-size:.9rem;text-decoration:none;transition:all .2s;border:none;cursor:pointer;font-family:'DM Sans',sans-serif}
+        .action-btn.primary{background:var(--gold);color:#000}
+        .action-btn.primary:hover{background:var(--gold-l)}
+        .action-btn.secondary{background:var(--card2);color:var(--gray);border:1px solid var(--border)}
+        .action-btn.secondary:hover{color:white;border-color:var(--dim)}
+        .action-btn.replay{background:rgba(139,92,246,.15);color:var(--purple);border:1px solid rgba(139,92,246,.3)}
+        .action-btn.replay:hover{background:rgba(139,92,246,.25)}
+    </style>
+</head>
+<body>
+    <div class="topbar"></div>
+    <div class="container">
+        <nav>
+            <div class="logo">
+                <div class="logo-icon">🎬</div>
+                <div>
+                    <div class="logo-text">CINEVAULT</div>
+                    <div class="logo-sub">AGE-RESTRICTED CONTENT</div>
+                </div>
+            </div>
+            <div class="status-badge" id="statusBadge">Checking VIDAA...</div>
+        </nav>
+
+        <!-- ═══ STATE 1: Landing ═══ -->
+        <div class="state active" id="stateLanding">
+            <div class="hero">
+                <h1>🎬 Premium Content Awaits</h1>
+                <p>CineVault requires age verification to access restricted content.
+                   We use zero-knowledge proofs - we'll learn nothing about you except that you're old enough.</p>
+                <div class="age-badge">🔞 Age ≥ 18 Required</div>
+            </div>
+            <button class="verify-btn" id="startBtn" onclick="startVerification()">
+                🛡️ Verify My Age with ZK Proof
+            </button>
+            <div style="text-align:center;color:var(--dim);font-size:.78rem;margin-top:-1rem">
+                No personal data collected. No sign-up required.
+            </div>
+        </div>
+
+        <!-- ═══ STATE 2: Nonce Issued ═══ -->
+        <div class="state" id="stateNonce">
+            <div class="nonce-card">
+                <h2>🎲 Your Verification Session</h2>
+                <p style="color:var(--gray);font-size:.85rem">Copy this nonce to your Prover app:</p>
+                <div class="nonce-display" id="nonceDisplay" onclick="copyNonce()" title="Click to copy">-</div>
+                <div class="copy-hint" id="copyHint">Click to copy</div>
+                <div class="nonce-timer">⏱️ Expires in <span id="timerDisplay">5:00</span></div>
+                <div class="nonce-instructions">
+                    <strong>Steps:</strong>
+                    <ol>
+                        <li>Open <strong>Alex's Prover</strong> at <a href="http://localhost:7070" target="_blank" style="color:var(--cyan)">localhost:7070</a></li>
+                        <li>Upload your VIDAA credential wallet</li>
+                        <li>Paste this nonce: <strong id="nonceInline">-</strong></li>
+                        <li>Click "Generate Proof" - wait ~15 seconds</li>
+                        <li>Download <strong>proof.json</strong> and <strong>public.json</strong></li>
+                        <li>Come back here and upload both files below</li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- Upload section (same page) -->
+            <div class="upload-section">
+                <h2>📤 Upload Your Proof</h2>
+                <p>Upload both files from the Prover app:</p>
+                <div class="upload-grid">
+                    <div class="upload-box" id="proofBox">
+                        <input type="file" id="proofInput" accept=".json">
+                        <div class="icon" id="proofIcon">📄</div>
+                        <div class="label">proof.json</div>
+                        <div class="filename" id="proofFilename"></div>
+                    </div>
+                    <div class="upload-box" id="publicBox">
+                        <input type="file" id="publicInput" accept=".json">
+                        <div class="icon" id="publicIcon">📄</div>
+                        <div class="label">public.json</div>
+                        <div class="filename" id="publicFilename"></div>
+                    </div>
+                </div>
+                <button class="verify-submit" id="verifyBtn" disabled onclick="submitProof()">
+                    🔍 Verify Proof
+                </button>
+            </div>
+        </div>
+
+        <!-- ═══ STATE 3: Verifying ═══ -->
+        <div class="state" id="stateVerifying">
+            <div class="verify-progress">
+                <div class="spinner"></div>
+                <div class="text">Running verification gauntlet...</div>
+                <div class="sub">Checking nonce → year → threshold → Merkle root → Groth16 proof</div>
+            </div>
+        </div>
+
+        <!-- ═══ STATE 4: Result ═══ -->
+        <div class="state" id="stateResult">
+            <div class="result-banner" id="resultBanner"></div>
+            <div class="checks-card">
+                <h3>🔍 Verification Gauntlet (5 Checks)</h3>
+                <div id="checksContainer"></div>
+            </div>
+            <div class="transparency" id="transparencyPanel" style="display:none">
+                <h3>🔍 Transparency Report - What Did CineVault Learn?</h3>
+                <div class="trans-grid">
+                    <div class="trans-col learned">
+                        <h4>✅ LEARNED</h4>
+                        <ul id="learnedList"></ul>
+                    </div>
+                    <div class="trans-col private">
+                        <h4>🔒 DID NOT LEARN</h4>
+                        <ul id="privateList"></ul>
+                    </div>
+                </div>
+            </div>
+            <div class="action-row" id="actionRow"></div>
+        </div>
+    </div>
+
+    <script>
+        let currentNonce = null;
+        let timerInterval = null;
+        let proofFile = null;
+        let publicFile = null;
+        let lastProofData = null;
+        let lastPublicData = null;
+
+        // ── Check VIDAA connection ──
+        async function checkStatus() {
+            try {
+                const res = await fetch('/api/status');
+                const data = await res.json();
+                const badge = document.getElementById('statusBadge');
+                if (data.vidaa_connected) {
+                    badge.className = 'status-badge connected';
+                    badge.textContent = '🟢 VIDAA Connected';
+                } else {
+                    badge.className = 'status-badge disconnected';
+                    badge.textContent = '🔴 VIDAA Offline';
+                }
+            } catch {
+                document.getElementById('statusBadge').className = 'status-badge disconnected';
+                document.getElementById('statusBadge').textContent = '🔴 Error';
+            }
+        }
+        checkStatus();
+        setInterval(checkStatus, 10000);
+
+        // ── State management ──
+        function showState(id) {
+            document.querySelectorAll('.state').forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+        }
+
+        // ── Start verification: get nonce ──
+        async function startVerification() {
+            try {
+                const res = await fetch('/api/nonce');
+                const data = await res.json();
+                currentNonce = data.verification_nonce;
+
+                document.getElementById('nonceDisplay').textContent = String(currentNonce);
+                document.getElementById('nonceInline').textContent = String(currentNonce);
+                showState('stateNonce');
+                startTimer(data.ttl_seconds);
+
+                // Reset upload state
+                proofFile = null; publicFile = null;
+                lastProofData = null; lastPublicData = null;
+                resetUploadBox('proof');
+                resetUploadBox('public');
+                document.getElementById('verifyBtn').disabled = true;
+            } catch (err) {
+                alert('Failed to get nonce: ' + err.message);
+            }
+        }
+
+        function copyNonce() {
+            navigator.clipboard.writeText(String(currentNonce)).then(() => {
+                document.getElementById('copyHint').textContent = '✅ Copied!';
+                setTimeout(() => document.getElementById('copyHint').textContent = 'Click to copy', 2000);
+            });
+        }
+
+        function startTimer(seconds) {
+            let remaining = seconds;
+            const display = document.getElementById('timerDisplay');
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                remaining--;
+                if (remaining <= 0) {
+                    clearInterval(timerInterval);
+                    display.textContent = 'EXPIRED';
+                    display.style.color = 'var(--red)';
+                    return;
+                }
+                const m = Math.floor(remaining / 60);
+                const s = remaining % 60;
+                display.textContent = `${m}:${String(s).padStart(2, '0')}`;
+                if (remaining < 60) display.style.color = 'var(--gold)';
+            }, 1000);
+        }
+
+        // ── File uploads ──
+        document.getElementById('proofInput').addEventListener('change', e => handleFile(e, 'proof'));
+        document.getElementById('publicInput').addEventListener('change', e => handleFile(e, 'public'));
+
+        function handleFile(e, type) {
+            const file = e.target.files[0];
+            if (!file) return;
+            if (type === 'proof') proofFile = file;
+            else publicFile = file;
+
+            const box = document.getElementById(type + 'Box');
+            const icon = document.getElementById(type + 'Icon');
+            const fname = document.getElementById(type + 'Filename');
+            box.classList.add('loaded');
+            icon.textContent = '✅';
+            fname.style.display = 'block';
+            fname.textContent = file.name;
+
+            document.getElementById('verifyBtn').disabled = !(proofFile && publicFile);
+        }
+
+        function resetUploadBox(type) {
+            const box = document.getElementById(type + 'Box');
+            const icon = document.getElementById(type + 'Icon');
+            const fname = document.getElementById(type + 'Filename');
+            const input = document.getElementById(type + 'Input');
+            box.classList.remove('loaded');
+            icon.textContent = '📄';
+            fname.style.display = 'none';
+            input.value = '';
+        }
+
+        // ── Submit proof ──
+        async function submitProof() {
+            if (!proofFile || !publicFile) return;
+            showState('stateVerifying');
+
+            // Read file contents for potential replay test
+            lastProofData = await proofFile.arrayBuffer();
+            lastPublicData = await publicFile.arrayBuffer();
+
+            try {
+                const formData = new FormData();
+                formData.append('proof', proofFile);
+                formData.append('public_signals', publicFile);
+
+                const res = await fetch('/api/verify', { method: 'POST', body: formData });
+                const data = await res.json();
+                showResult(data);
+            } catch (err) {
+                showResult({ verified: false, checks: [], reason: 'Network error: ' + err.message });
+            }
+        }
+
+        // ── Replay test ──
+        async function replayProof() {
+            if (!lastProofData || !lastPublicData) {
+                alert('No previous proof to replay'); return;
+            }
+            showState('stateVerifying');
+
+            const formData = new FormData();
+            formData.append('proof', new Blob([lastProofData], { type: 'application/json' }), 'proof.json');
+            formData.append('public_signals', new Blob([lastPublicData], { type: 'application/json' }), 'public.json');
+
+            try {
+                const res = await fetch('/api/verify', { method: 'POST', body: formData });
+                const data = await res.json();
+                showResult(data, true);
+            } catch (err) {
+                showResult({ verified: false, checks: [], reason: 'Network error: ' + err.message });
+            }
+        }
+
+        // ── Show result ──
+        function showResult(data, isReplay = false) {
+            showState('stateResult');
+
+            const banner = document.getElementById('resultBanner');
+            if (data.verified) {
+                banner.className = 'result-banner pass';
+                banner.innerHTML = `
+                    <h1>✅ ACCESS GRANTED</h1>
+                    <p>Zero-knowledge proof verified. Citizen is age ≥ 18.<br>
+                    <span style="font-size:.78rem;color:var(--dim)">Verified in ${data.elapsed_ms}ms</span></p>`;
+            } else {
+                banner.className = 'result-banner fail';
+                banner.innerHTML = `
+                    <h1>${isReplay ? '🔁 REPLAY BLOCKED' : '❌ ACCESS DENIED'}</h1>
+                    <p>${data.reason || 'Verification failed'}<br>
+                    <span style="font-size:.78rem;color:var(--dim)">Checked in ${data.elapsed_ms || 0}ms</span></p>`;
+            }
+
+            // Render checks
+            const container = document.getElementById('checksContainer');
+            container.innerHTML = (data.checks || []).map(c => `
+                <div class="check-row">
+                    <div class="check-icon">${c.pass ? '✅' : '❌'}</div>
+                    <div>
+                        <div class="check-name">${c.name}</div>
+                        <div class="check-detail">${c.detail}</div>
+                    </div>
+                    <div class="check-values">
+                        <div class="expected">expect: ${c.expected}</div>
+                        <div class="received">${c.received}</div>
+                    </div>
+                </div>
+            `).join('');
+
+            // Transparency panel
+            const tp = document.getElementById('transparencyPanel');
+            if (data.transparency) {
+                tp.style.display = 'block';
+                document.getElementById('learnedList').innerHTML =
+                    data.transparency.what_cinevault_learned.map(s => `<li>${s}</li>`).join('');
+                document.getElementById('privateList').innerHTML =
+                    data.transparency.what_cinevault_did_NOT_learn.map(s => `<li>${s}</li>`).join('');
+            } else {
+                tp.style.display = 'none';
+            }
+
+            // Action buttons
+            const actions = document.getElementById('actionRow');
+            actions.innerHTML = `
+                <button class="action-btn primary" onclick="startVerification()">🔄 New Verification</button>
+                <button class="action-btn replay" onclick="replayProof()">🔁 Replay Same Proof (test anti-replay)</button>
+                <button class="action-btn secondary" onclick="showState('stateLanding')">🏠 Back to Home</button>
+            `;
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VIDAA - Veritasian Identity Assurance Authority</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap');
+        *{margin:0;padding:0;box-sizing:border-box}
+        :root{--dark-bg:#0A1628;--navy:#0F2440;--teal:#0D9488;--teal-light:#14B8A6;--mint:#5EEAD4;--white:#FFF;--gray:#94A3B8;--gold:#F59E0B;--card:#111D33}
+        body{font-family:'DM Sans',sans-serif;background:var(--dark-bg);color:var(--white);min-height:100vh}
+        body::before{content:'';position:fixed;top:0;left:0;width:100%;height:100%;background:radial-gradient(circle at 20% 20%,rgba(13,148,136,.08)0%,transparent 50%),radial-gradient(circle at 80% 80%,rgba(59,130,246,.06)0%,transparent 50%);pointer-events:none;z-index:0}
+        body::after{content:'';position:fixed;top:0;left:0;width:100%;height:100%;background-image:linear-gradient(rgba(13,148,136,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(13,148,136,.03) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;z-index:0}
+        .container{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:0 2rem}
+        .topbar{height:4px;background:linear-gradient(90deg,var(--teal),var(--mint),var(--teal));position:fixed;top:0;left:0;right:0;z-index:100}
+        nav{display:flex;align-items:center;justify-content:space-between;padding:1.5rem 0;border-bottom:1px solid rgba(13,148,136,.15);margin-top:4px}
+        .logo{display:flex;align-items:center;gap:12px}
+        .logo-icon{width:44px;height:44px;background:var(--teal);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px}
+        .logo-text{font-family:'Space Mono',monospace;font-size:1.3rem;font-weight:700;letter-spacing:3px}
+        .logo-sub{font-size:.65rem;color:var(--teal-light);letter-spacing:1.5px;margin-top:2px}
+        nav a{color:var(--gray);text-decoration:none;font-size:.9rem;font-weight:500;padding:.5rem 1rem;border-radius:8px;transition:all .2s}
+        nav a:hover{color:var(--white);background:rgba(13,148,136,.1)}
+        nav a.active{color:var(--teal-light);background:rgba(13,148,136,.15)}
+        .hero{text-align:center;padding:5rem 0 3rem}
+        .hero-badge{display:inline-block;padding:6px 18px;background:rgba(13,148,136,.12);border:1px solid rgba(13,148,136,.25);border-radius:50px;font-size:.8rem;font-weight:500;color:var(--teal-light);letter-spacing:2px;margin-bottom:2rem}
+        .hero h1{font-size:3.5rem;font-weight:700;line-height:1.1;margin-bottom:1.5rem;background:linear-gradient(135deg,var(--white),var(--mint));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+        .hero p{font-size:1.1rem;color:var(--gray);max-width:620px;margin:0 auto 2.5rem;line-height:1.7}
+        .hero-buttons{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap}
+        .btn{display:inline-flex;align-items:center;gap:8px;padding:14px 28px;font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:600;border:none;border-radius:12px;cursor:pointer;text-decoration:none;transition:all .3s}
+        .btn-primary{background:var(--teal);color:var(--white);box-shadow:0 4px 24px rgba(13,148,136,.3)}
+        .btn-primary:hover{background:var(--teal-light);transform:translateY(-2px)}
+        .btn-outline{background:transparent;color:var(--teal-light);border:1.5px solid rgba(13,148,136,.4)}
+        .btn-outline:hover{background:rgba(13,148,136,.1)}
+        .root-banner{margin:2rem 0;padding:1.2rem 1.8rem;background:rgba(15,36,64,.8);border:1px solid rgba(245,158,11,.2);border-radius:14px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem}
+        .root-banner .label{font-size:.75rem;color:var(--gold);letter-spacing:2px;font-weight:600}
+        .root-banner .value{font-family:'Space Mono',monospace;color:var(--mint);font-size:.95rem;word-break:break-all}
+        .root-banner .count{font-size:.85rem;color:var(--gray)}
+        .features{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;padding:2rem 0 4rem}
+        .feature-card{background:rgba(15,36,64,.6);border:1px solid rgba(13,148,136,.12);border-radius:16px;padding:2rem;transition:all .3s}
+        .feature-card:hover{border-color:rgba(13,148,136,.35);transform:translateY(-4px);box-shadow:0 12px 40px rgba(0,0,0,.3)}
+        .feature-icon{width:50px;height:50px;background:rgba(13,148,136,.12);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:1.2rem}
+        .feature-card h3{font-size:1.1rem;margin-bottom:.6rem}
+        .feature-card p{font-size:.88rem;color:var(--gray);line-height:1.6}
+        .formula-box{background:rgba(15,36,64,.8);border:1px solid rgba(13,148,136,.2);border-radius:16px;padding:2rem 2.5rem;text-align:left;margin:2rem 0 3rem}
+        .formula-box h3{color:var(--teal-light);font-size:.85rem;letter-spacing:2px;margin-bottom:1rem}
+        .formula-code{font-family:'Space Mono',monospace;font-size:.9rem;color:var(--mint);line-height:2}
+        .formula-code .comment{color:var(--gray);font-size:.78rem}
+        .formula-code .gold{color:var(--gold)}
+        footer{border-top:1px solid rgba(13,148,136,.1);padding:2rem 0;text-align:center;color:var(--gray);font-size:.85rem}
+        @media(max-width:768px){.hero h1{font-size:2.5rem}.features{grid-template-columns:1fr}}
+    </style>
+</head>
+<body>
+    <div class="topbar"></div>
+    <div class="container">
+        <nav>
+            <div class="logo">
+                <div class="logo-icon">🏛️</div>
+                <div><div class="logo-text">VIDAA</div><div class="logo-sub">IDENTITY ASSURANCE AUTHORITY</div></div>
+            </div>
+            <div>
+                <a href="/" class="active">Home</a>
+                <a href="/register">Register</a>
+                <a href="/dashboard">Database</a>
+                <a href="/merkle">🌳 Merkle Tree</a>
+            </div>
+        </nav>
+
+        <section class="hero">
+            <div class="hero-badge">VERITASIA NATIONAL IDENTITY SYSTEM · MERKLE-TREE v2</div>
+            <h1>Prove Who You Are.<br>Reveal Nothing.</h1>
+            <p>VIDAA issues Merkle-tree credentials to every citizen. Verify attributes - age, residency, eligibility - without exposing personal data. Powered by SHA-256 Merkle proofs and Groth16 ZK-SNARKs.</p>
+            <div class="hero-buttons">
+                <a href="/register" class="btn btn-primary">📝 Register New Citizen</a>
+                <a href="/dashboard" class="btn btn-outline">🗄️ View Database</a>
+                <a href="/merkle" class="btn btn-outline">🌳 View Merkle Tree</a>
+            </div>
+        </section>
+
+        {% if merkle_root %}
+        <div class="root-banner">
+            <div>
+                <div class="label">CURRENT MERKLE ROOT (PUBLIC)</div>
+                <div class="value">0x{{ merkle_root }}</div>
+            </div>
+            <div class="count">{{ citizen_count }} citizen{{ 's' if citizen_count != 1 }} registered · depth 3 · max 8</div>
+        </div>
+        {% endif %}
+
+        <section class="features">
+            <div class="feature-card">
+                <div class="feature-icon">🌳</div>
+                <h3>Merkle-Tree Issuance</h3>
+                <p>Each citizen becomes a leaf in a binary SHA-256 Merkle tree. Only the root is published - individual leaves stay private.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🛡️</div>
+                <h3>Zero-Knowledge Verification</h3>
+                <p>Third parties verify claims ("age ≥ 18") using ZK proofs. They learn only the statement's truth - nothing more. Not even which leaf is yours.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🔗</div>
+                <h3>Multi-Verifier Unlinkability</h3>
+                <p>Fresh nonce per verification. Even colluding verifiers cannot link proofs to the same citizen. Exactly like Tornado Cash's anonymity set.</p>
+            </div>
+        </section>
+
+        <div class="formula-box">
+            <h3>MERKLE LEAF DERIVATION FORMULA</h3>
+            <div class="formula-code">
+                <span class="comment">// Step 1: Encode birth year as 16-bit big-endian (2 bytes)</span><br>
+                birth_year_bytes = encode_be16( birth_year )<br><br>
+                <span class="comment">// Step 2: Concatenate with citizen's private credentials</span><br>
+                preimage = birth_year_bytes ‖ <span class="gold">citizen_secret</span><sub>256-bit</sub> ‖ <span class="gold">nonce_issuance</span><sub>128-bit</sub><br><br>
+                <span class="comment">// Step 3: Hash to create the leaf (400 bits → 256 bits)</span><br>
+                leaf = SHA-256( preimage ) &nbsp;&nbsp;<span class="comment">// ≈ 29,000 R1CS constraints in Circom</span><br><br>
+                <span class="comment">// Step 4: Build binary Merkle tree over all citizen leaves</span><br>
+                parent = SHA-256( left_child ‖ right_child ) &nbsp;&nbsp;<span class="comment">// 512 bits → 256 bits</span><br><br>
+                <span class="comment">// Step 5: Only the ROOT is published. Everything else is private.</span><br>
+                <span class="gold">merkle_root</span> = tree.root &nbsp;&nbsp;← <span class="comment">THE ONLY PUBLIC DATA</span>
+            </div>
+        </div>
+
+        <footer>
+            <p>VIDAA - Veritasian Identity Assurance Authority &nbsp;·&nbsp; Hackathon 2026 &nbsp;·&nbsp; Merkle-Tree v2.0 &nbsp;·&nbsp; All data is synthetic</p>
+        </footer>
+    </div>
+</body>
+</html>

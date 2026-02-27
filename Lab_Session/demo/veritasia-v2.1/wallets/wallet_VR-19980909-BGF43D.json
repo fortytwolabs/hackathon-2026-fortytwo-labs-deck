@@ -1,0 +1,27 @@
+{
+  "_meta": {
+    "version": "2.1",
+    "issuer": "VIDAA - Veritasian Identity Assurance Authority",
+    "citizen_id": "VR-19980909-BGF43D",
+    "full_name": "Bibek Ghosh",
+    "issued_at": "2026-02-19T15:51:12.520646",
+    "tree_depth": 3,
+    "WARNING": "PRIVATE - Never share with verifiers."
+  },
+  "birth_year": 1998,
+  "citizen_secret_hex": "5b9ab33e208a52d16b538f15c2fecdf300af92e60c6f99df0141035f6e75828c",
+  "nonce_issuance_hex": "90ec9a90599959da4eaad593659caede",
+  "leaf_hash_hex": "88735904a3ef37269eacc4681e63a8c2b81f09f9e98d16a0ed406613394748d9",
+  "leaf_index": 0,
+  "path_indices": [
+    0,
+    0,
+    0
+  ],
+  "path_siblings_hex": [
+    "0000000000000000000000000000000000000000000000000000000000000000",
+    "f5a5fd42d16a20302798ef6ed309979b43003d2320d9f0e8ea9831a92759fb4b",
+    "db56114e00fdd4c1f85c892bf35ac9a89289aaecb1ebd0a96cde606a748b5d71"
+  ],
+  "merkle_root_hex": "d55be3a6266ccedd1f1f43982ba4949d6062ecd87da16296c01b85aafbbc9d0b"
+}

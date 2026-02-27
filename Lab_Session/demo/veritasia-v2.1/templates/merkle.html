@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Merkle Tree - VIDAA</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap');
+        *{margin:0;padding:0;box-sizing:border-box}
+        :root{--dark-bg:#0A1628;--navy:#0F2440;--card:#111D33;--teal:#0D9488;--teal-light:#14B8A6;--mint:#5EEAD4;--white:#FFF;--gray:#94A3B8;--gold:#F59E0B;--green:#059669;--red:#EF4444}
+        body{font-family:'DM Sans',sans-serif;background:var(--dark-bg);color:var(--white);min-height:100vh}
+        .topbar{height:4px;background:linear-gradient(90deg,var(--teal),var(--mint),var(--teal));position:fixed;top:0;left:0;right:0;z-index:100}
+        .container{position:relative;z-index:1;max-width:1300px;margin:0 auto;padding:0 2rem}
+        nav{display:flex;align-items:center;justify-content:space-between;padding:1.5rem 0;border-bottom:1px solid rgba(13,148,136,.15);margin-top:4px}
+        .logo{display:flex;align-items:center;gap:12px}
+        .logo-icon{width:44px;height:44px;background:var(--teal);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px}
+        .logo-text{font-family:'Space Mono',monospace;font-size:1.3rem;font-weight:700;letter-spacing:3px}
+        .logo-sub{font-size:.65rem;color:var(--teal-light);letter-spacing:1.5px}
+        nav a{color:var(--gray);text-decoration:none;font-size:.9rem;font-weight:500;padding:.5rem 1rem;border-radius:8px;transition:all .2s}
+        nav a:hover{color:var(--white);background:rgba(13,148,136,.1)}
+        nav a.active{color:var(--teal-light);background:rgba(13,148,136,.15)}
+        .page-header{padding:2rem 0 1rem}
+        .page-header h1{font-size:1.8rem;margin-bottom:.3rem}
+        .page-header p{color:var(--gray);font-size:.9rem}
+        .tree-container{padding:2rem 0 3rem;overflow-x:auto}
+        .tree-level{display:flex;justify-content:center;gap:12px;margin-bottom:8px;position:relative}
+        .tree-level::after{content:'';display:block;clear:both}
+        .node{background:var(--card);border:1px solid rgba(13,148,136,.15);border-radius:10px;padding:.6rem .8rem;text-align:center;min-width:130px;max-width:170px;transition:all .3s}
+        .node:hover{border-color:var(--teal);box-shadow:0 4px 20px rgba(13,148,136,.15)}
+        .node.root{background:rgba(13,148,136,.15);border-color:var(--teal);min-width:200px}
+        .node.leaf{min-width:140px}
+        .node.leaf.real{border-color:var(--teal-light);background:rgba(13,148,136,.06)}
+        .node.leaf.empty{border-color:rgba(100,116,139,.2);opacity:.4}
+        .node-label{font-size:.62rem;color:var(--teal-light);letter-spacing:1.5px;font-weight:600;margin-bottom:3px}
+        .node-label.root-label{color:var(--gold)}
+        .node-hash{font-family:'Space Mono',monospace;font-size:.68rem;color:var(--mint);word-break:break-all;line-height:1.3}
+        .node-hash.root-hash{color:var(--gold);font-size:.72rem}
+        .node-name{font-size:.78rem;color:var(--white);font-weight:600;margin-top:3px}
+        .node-name.empty-name{color:var(--gray);font-style:italic}
+        .connectors{display:flex;justify-content:center;margin-bottom:8px}
+        .connector-group{display:flex;align-items:flex-start;position:relative}
+        .level-label{text-align:center;font-size:.7rem;color:var(--gray);letter-spacing:1.5px;margin-bottom:6px;font-weight:600}
+        .info-box{background:var(--card);border:1px solid rgba(13,148,136,.12);border-radius:14px;padding:1.5rem;margin-bottom:2rem}
+        .info-box h3{font-size:1rem;margin-bottom:.8rem}
+        .info-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem}
+        .info-item .lbl{font-size:.68rem;color:var(--teal-light);letter-spacing:1px;font-weight:600;text-transform:uppercase}
+        .info-item .val{font-family:'Space Mono',monospace;font-size:.85rem;color:var(--mint);margin-top:2px}
+        .info-item .val.gold{color:var(--gold)}
+        .empty-state{text-align:center;padding:5rem 2rem;color:var(--gray)}
+        .empty-state .icon{font-size:4rem;margin-bottom:1.5rem}
+        .empty-state h3{color:var(--white);margin-bottom:.5rem}
+        .arrow-down{text-align:center;color:var(--gray);font-size:1.2rem;margin:4px 0}
+        footer{border-top:1px solid rgba(13,148,136,.1);padding:2rem 0;text-align:center;color:var(--gray);font-size:.85rem}
+    </style>
+</head>
+<body>
+    <div class="topbar"></div>
+    <div class="container">
+        <nav>
+            <div class="logo">
+                <div class="logo-icon">🏛️</div>
+                <div><div class="logo-text">VIDAA</div><div class="logo-sub">IDENTITY ASSURANCE AUTHORITY</div></div>
+            </div>
+            <div>
+                <a href="/">Home</a>
+                <a href="/register">Register</a>
+                <a href="/dashboard">Database</a>
+                <a href="/merkle" class="active">🌳 Tree</a>
+            </div>
+        </nav>
+
+        <div class="page-header">
+            <h1>🌳 Merkle Tree Visualization</h1>
+            <p>The full binary SHA-256 Merkle tree over all registered citizens. Only the root is published - everything else stays private.</p>
+        </div>
+
+        {% if tree %}
+        <div class="info-box">
+            <h3>📊 Tree Statistics</h3>
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="lbl">Root Hash</div>
+                    <div class="val gold">0x{{ tree.root[:24] }}...</div>
+                </div>
+                <div class="info-item">
+                    <div class="lbl">Depth</div>
+                    <div class="val">{{ tree_depth }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="lbl">Real Leaves</div>
+                    <div class="val">{{ tree.num_real }} / {{ max_citizens }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="lbl">SHA-256 Calls</div>
+                    <div class="val">{{ tree.num_real + tree_depth }} (in circuit: {{ tree_depth + 1 }})</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tree-container">
+            <!-- ROOT (Layer 3) -->
+            <div class="level-label">LEVEL 3 - ROOT (PUBLIC)</div>
+            <div class="tree-level">
+                <div class="node root">
+                    <div class="node-label root-label">MERKLE ROOT</div>
+                    <div class="node-hash root-hash">0x{{ tree.layers[3][0][:20] }}...</div>
+                </div>
+            </div>
+            <div class="arrow-down">↙ ↘</div>
+
+            <!-- Layer 2 -->
+            <div class="level-label">LEVEL 2 - SHA256(child ‖ child)</div>
+            <div class="tree-level">
+                {% for hash in tree.layers[2] %}
+                <div class="node">
+                    <div class="node-label">H{{ loop.index0 * 2 }}{{ loop.index0 * 2 + 1 }}</div>
+                    <div class="node-hash">0x{{ hash[:20] }}...</div>
+                </div>
+                {% endfor %}
+            </div>
+            <div class="arrow-down">↙ ↘ &nbsp;&nbsp;&nbsp;&nbsp; ↙ ↘</div>
+
+            <!-- Layer 1 -->
+            <div class="level-label">LEVEL 1 - SHA256(child ‖ child)</div>
+            <div class="tree-level">
+                {% for hash in tree.layers[1] %}
+                <div class="node">
+                    <div class="node-label">H{{ loop.index0 }}</div>
+                    <div class="node-hash">0x{{ hash[:16] }}...</div>
+                </div>
+                {% endfor %}
+            </div>
+            <div class="arrow-down">↙↘ &nbsp; ↙↘ &nbsp; ↙↘ &nbsp; ↙↘</div>
+
+            <!-- Layer 0 - Leaves -->
+            <div class="level-label">LEVEL 0 - LEAVES (SHA256 of citizen data)</div>
+            <div class="tree-level">
+                {% for hash in tree.layers[0] %}
+                {% set is_real = loop.index0 < tree.num_real %}
+                {% set citizen_info = None %}
+                {% for c in citizens %}
+                    {% if c.leaf_index == loop.index0 %}
+                        {% set citizen_info = c %}
+                    {% endif %}
+                {% endfor %}
+                <div class="node leaf {{ 'real' if is_real else 'empty' }}">
+                    <div class="node-label">LEAF #{{ loop.index0 }}</div>
+                    <div class="node-hash">0x{{ hash[:14] }}...</div>
+                    {% if is_real %}
+                        {% for c in citizens %}
+                            {% if c.leaf_index == loop.index0 %}
+                            <div class="node-name">{{ c.full_name }}</div>
+                            {% endif %}
+                        {% endfor %}
+                    {% else %}
+                    <div class="node-name empty-name">empty</div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="info-box">
+            <h3>🔒 Privacy Guarantees</h3>
+            <p style="color:var(--gray);font-size:.85rem;line-height:1.7">
+                When Alex generates a ZK proof, the verifier sees <strong style="color:var(--gold)">ONLY the root hash</strong> - the same root shared by all {{ tree.num_real }} citizens. 
+                The verifier never learns which leaf belongs to Alex, what his birth year is, or any other attribute. 
+                The proof only confirms: "I know a leaf in this tree whose birth_year makes me ≥ 18." That's it. Nothing more.
+            </p>
+        </div>
+
+        {% else %}
+        <div class="empty-state">
+            <div class="icon">🌱</div>
+            <h3>No Tree Built Yet</h3>
+            <p>Register your first citizen at <a href="/register" style="color:var(--teal-light)">the registration page</a> to build the Merkle tree.</p>
+        </div>
+        {% endif %}
+
+        <footer>
+            <p>VIDAA v2.0 - Merkle Tree Visualization &nbsp;·&nbsp; 
+            <a href="/api/tree" style="color:var(--teal-light)">View Raw Tree JSON</a></p>
+        </footer>
+    </div>
+</body>
+</html>
